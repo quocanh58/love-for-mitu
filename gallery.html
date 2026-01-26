@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="vi">
   <head>
     <meta charset="UTF-8" />
@@ -38,7 +38,9 @@
         padding: 10px 10px 22px;
         border-radius: 14px;
         box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
-        transition: transform 0.35s ease, box-shadow 0.35s ease;
+        transition:
+          transform 0.35s ease,
+          box-shadow 0.35s ease;
         transform-style: preserve-3d;
       }
 
@@ -63,6 +65,39 @@
       .fall.show {
         opacity: 1;
         transform: translateY(0) scale(1);
+      }
+
+      /* ===== FLOAT + GLOW EFFECT ===== */
+      @keyframes floatSoft {
+        0% {
+          transform: translateY(0px) scale(1);
+        }
+        50% {
+          transform: translateY(-6px) scale(1.015);
+        }
+        100% {
+          transform: translateY(0px) scale(1);
+        }
+      }
+
+      @keyframes glowSoft {
+        0% {
+          box-shadow: 0 12px 25px rgba(236, 72, 153, 0.15);
+        }
+        50% {
+          box-shadow: 0 20px 40px rgba(236, 72, 153, 0.35);
+        }
+        100% {
+          box-shadow: 0 12px 25px rgba(236, 72, 153, 0.15);
+        }
+      }
+
+      .float-soft {
+        animation: floatSoft 4s ease-in-out infinite;
+      }
+
+      .glow-soft {
+        animation: glowSoft 4s ease-in-out infinite;
       }
     </style>
   </head>
@@ -105,34 +140,34 @@
 
     <script>
       const images = [
-        { src: "img21.jpg", date: "21/12/2025" },
+        { src: "img21.jpg", date: "15/01/2026" },
         { src: "img9.jpg", date: "26/01/2026" },
-        { src: "img1.jpg", date: "21/12/2025" },
-        { src: "img4.jpg", date: "21/12/2025" },
-        { src: "img18.jpg", date: "12/11/2024" },
-        { src: "img22.jpg", date: "21/12/2025" },
-        { src: "img2.jpg", date: "21/12/2025" },
-        { src: "img3.jpg", date: "21/12/2025" },
-        { src: "img5.jpg", date: "21/12/2025" },
-        { src: "img6.jpg", date: "21/12/2025" },
-        { src: "img7.jpg", date: "21/12/2025" },
-        { src: "img8.jpg", date: "21/12/2025" },
-        { src: "img10.jpg", date: "05/12/2024" },
-        { src: "img11.jpg", date: "10/08/2024" },
-        { src: "img12.jpg", date: "14/08/2024" },
-        { src: "img13.jpg", date: "14/08/2024" },
-        { src: "img13.jpg", date: "01/09/2024" },
-        { src: "img14.jpg", date: "20/09/2024" },
-        { src: "img15.jpg", date: "05/10/2024" },
-        { src: "img16.jpg", date: "18/10/2024" },
-        { src: "img17.jpg", date: "30/10/2024" },
-        { src: "img18.jpg", date: "12/11/2024" },
-        { src: "img19.jpg", date: "25/11/2024" },
-        { src: "img20.jpg", date: "05/12/2024" },
-        { src: "img21.jpg", date: "10/08/2024" },
-        { src: "img22.jpg", date: "14/08/2024" },
-        { src: "img3.jpg", date: "01/09/2024" },
-        { src: "img4.jpg", date: "20/09/2024" },
+        { src: "img1.jpg", date: "24/01/2026" },
+        { src: "img4.jpg", date: "24/01/2026" },
+        { src: "img18.jpg", date: "15/01/2026" },
+        { src: "img22.jpg", date: "15/01/2026" },
+        { src: "img2.jpg", date: "24/01/2026" },
+        { src: "img3.jpg", date: "24/01/2026" },
+        { src: "img5.jpg", date: "24/01/2026" },
+        { src: "img6.jpg", date: "24/01/2026" },
+        { src: "img7.jpg", date: "24/01/2026" },
+        { src: "img8.jpg", date: "24/01/2026" },
+        { src: "img10.jpg", date: "24/01/2026" },
+        { src: "img11.jpg", date: "24/01/2026" },
+        { src: "img12.jpg", date: "24/01/2026" },
+        { src: "img13.jpg", date: "24/01/2026" },
+        { src: "img13.jpg", date: "24/01/2026" },
+        { src: "img14.jpg", date: "24/01/2026" },
+        { src: "img15.jpg", date: "24/01/2026" },
+        { src: "img16.jpg", date: "24/01/2026" },
+        { src: "img17.jpg", date: "24/01/2026" },
+        { src: "img18.jpg", date: "15/01/2026" },
+        { src: "img19.jpg", date: "22/01/2026" },
+        { src: "img20.jpg", date: "16/01/2026" },
+        { src: "img21.jpg", date: "15/01/2026" },
+        { src: "img22.jpg", date: "15/01/2026" },
+        { src: "img3.jpg", date: "24/01/2026" },
+        { src: "img4.jpg", date: "24/01/2026" },
         { src: "img5.jpg", date: "05/10/2024" },
         { src: "img6.jpg", date: "18/10/2024" },
         { src: "img7.jpg", date: "30/10/2024" },
@@ -169,13 +204,15 @@
             }
           });
         },
-        { threshold: 0.15 }
+        { threshold: 0.15 },
       );
 
       /* ===== BUILD GALLERY ===== */
       images.forEach((item, index) => {
         const wrapper = document.createElement("div");
-        wrapper.className = "polaroid fall";
+        const delay = Math.random() * 2;
+        wrapper.className = "polaroid fall float-soft glow-soft";
+        wrapper.style.animationDelay = `${delay}s`;
 
         const img = document.createElement("img");
         img.src = `asset/img/${item.src}`;

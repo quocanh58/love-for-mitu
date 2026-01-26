@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="vi">
   <head>
     <meta charset="UTF-8" />
@@ -106,13 +106,7 @@
     >
       ▶ Nhạc
     </button>
-    <!-- <div
-      id="music-disc"
-      class="fixed top-20 right-6 z-40 w-14 h-14 rounded-full bg-pink-400 shadow-xl flex items-center justify-center hidden"
-    >
-      🎵
-    </div> -->
-    <!-- HEART -->
+
     <div id="heart-container"></div>
 
     <!-- ===== MAIN CONTENT ===== -->
@@ -122,12 +116,22 @@
     >
       <div class="glass max-w-2xl w-full p-14 text-center space-y-10">
         <div class="space-y-4">
-          <h1 class="text-5xl font-bold text-pink-600">Anh yêu em 💖</h1>
+          <h1 class="text-5xl font-bold text-pink-600">Anh yêu em, Lỡ Lỡ 💖</h1>
 
-          <p class="text-gray-600 text-xl leading-relaxed">
-            Tụi mình đã có với nhau
-            <br class="hidden md:block" />
-            những kỷ niệm rất đẹp 🌸
+          <p
+            class="text-gray-600 text-lg leading-relaxed text-center font-light italic"
+          >
+            <strong class="text-black-400">Tụi mình đã có với nhau</strong>
+            <br />
+            <strong class="text-pink-500 text-2xl font-semibold">
+              những kỷ niệm rất đẹp 🌸
+            </strong>
+            <br />
+            <strong class="text-black-400">và anh mong rằng</strong>
+            <br />
+            <strong class="text-rose-400 text-2xl font-semibold">
+              mình sẽ còn viết tiếp câu chuyện này thật dài 💞
+            </strong>
           </p>
         </div>
 
@@ -139,7 +143,6 @@
       </div>
     </div>
 
-    <!-- ===== SCRIPT ===== -->
     <script>
       const PASSWORD = "21122025";
 
@@ -151,14 +154,26 @@
           document.getElementById("password-modal").classList.add("hidden");
           document.getElementById("main-content").classList.remove("hidden");
 
-          // 🔥 ĐÁNH DẤU LÀ PHẢI PHÁT NHẠC
           localStorage.setItem("music_playing", "true");
           toggleMusic();
         } else {
           error.classList.remove("hidden");
         }
       }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        const input = document.getElementById("password-input");
+
+        input.focus();
+
+        input.addEventListener("keydown", (e) => {
+          if (e.key === "Enter") {
+            checkPassword();
+          }
+        });
+      });
     </script>
+
     <script src="js/music.js"></script>
     <script>
       document.addEventListener("DOMContentLoaded", initMusic);

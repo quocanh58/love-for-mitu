@@ -3,11 +3,6 @@ const audio = new Audio("assets/music/noi-nay-co-anh.mp3");
 audio.loop = true;
 audio.volume = 0.6;
 
-// function startMusic() {
-//   audio.play();
-//   document.getElementById("music-btn").classList.add("hidden");
-// }
-
 /* ===== HEART FLY ===== */
 const heartContainer = document.getElementById("heart-container");
 
