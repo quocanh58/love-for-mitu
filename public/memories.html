@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Kỷ niệm của tụi mình 🥰</title>
+    <script src="js/auth.js"></script>
+    <script>auth.checkAuth();</script>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+      .glass {
+        background: rgba(255, 255, 255, 0.82);
+        backdrop-filter: blur(14px);
+        border-radius: 28px;
+        box-shadow: 0 25px 60px rgba(236, 72, 153, 0.25);
+      }
+
+      .memory {
+        animation: fadeUp 0.6s ease forwards;
+      }
+
+      @keyframes fadeUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .btn-pulse {
+        animation: pulse 2s infinite;
+      }
+
+      @keyframes pulse {
+        0% {
+          box-shadow: 0 0 0 0 rgba(236, 72, 153, 0.6);
+        }
+        70% {
+          box-shadow: 0 0 0 18px rgba(236, 72, 153, 0);
+        }
+        100% {
+          box-shadow: 0 0 0 0 rgba(236, 72, 153, 0);
+        }
+      }
+    </style>
+  </head>
+
+  <body
+    class="min-h-screen bg-gradient-to-br from-pink-200 via-pink-100 to-rose-200 px-4 py-12"
+  >
+    <!-- BACK -->
+    <a
+      href="index.html"
+      class="fixed top-4 left-4 z-50 bg-pink-500 text-white px-4 py-2 rounded-full shadow-lg hover:scale-105 transition"
+    >
+      ← Home
+    </a>
+
+    <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
+      
+      <!-- LIST (Left Side - 7 cols) -->
+      <div class="md:col-span-7 space-y-6 order-2 md:order-1">
+        <div class="flex items-center justify-between mb-4 hidden md:flex">
+          <h2 class="text-2xl font-bold text-pink-600">📖 Danh sách kỷ niệm</h2>
+          <select id="sortOrder" onchange="syncSort(this.value)" class="bg-white/50 border border-pink-200 text-pink-600 text-sm rounded-lg focus:ring-pink-500 focus:border-pink-500 block p-2 outline-none">
+            <option value="newest_date">📅 Mới nhất</option>
+            <option value="oldest_date">📅 Cũ nhất</option>
+            <option value="recently_added">✨ Vừa thêm</option>
+          </select>
+        </div>
+        <!-- Mobile Sort (Visible on small screens) -->
+        <div class="md:hidden flex justify-end mb-2">
+             <select id="sortOrderMobile" onchange="syncSort(this.value)" class="bg-white/50 border border-pink-200 text-pink-600 text-sm rounded-lg p-2 outline-none">
+                <option value="newest_date">📅 Mới nhất</option>
+                <option value="oldest_date">📅 Cũ nhất</option>
+                <option value="recently_added">✨ Vừa thêm</option>
+             </select>
+        </div>
+        <div id="list" class="space-y-6"></div>
+      </div>
+
+      <!-- INPUT (Right Side - 5 cols) -->
+      <div class="glass p-8 space-y-6 md:col-span-5 sticky top-24 order-1 md:order-2">
+        <h1 class="text-3xl font-bold text-pink-600 text-center">
+          Thêm kỷ niệm mới
+        </h1>
+
+        <p class="text-center text-gray-600 text-sm">
+          Mỗi ngày bên nhau là một điều đáng nhớ 💞
+        </p>
+
+        <div class="space-y-4">
+          <input type="hidden" id="memory-id">
+          <div>
+            <label class="block text-pink-600 font-medium mb-1">
+              📅 Ngày
+            </label>
+            <input
+              id="date"
+              type="date"
+              class="w-full px-4 py-3 rounded-xl border focus:ring-2 focus:ring-pink-400 outline-none"
+            />
+          </div>
+
+          <div>
+            <label class="block text-pink-600 font-medium mb-1">
+              💭 Kỷ niệm
+            </label>
+            <textarea
+              id="text"
+              rows="4"
+              placeholder="Hôm nay tụi mình đã cười với nhau vì..."
+              class="w-full px-4 py-3 rounded-xl border focus:ring-2 focus:ring-pink-400 outline-none"
+            ></textarea>
+          </div>
+        </div>
+
+        <div class="flex gap-2">
+            <button
+              id="save-btn"
+              onclick="saveMemory()"
+              class="flex-1 bg-pink-500 hover:bg-pink-600 text-white py-4 rounded-xl font-semibold text-lg transition btn-pulse"
+            >
+              Lưu lại khoảnh khắc 💖
+            </button>
+            <button
+              id="cancel-btn"
+              onclick="cancelEdit()"
+              class="hidden px-4 bg-gray-200 text-gray-600 rounded-xl font-semibold hover:bg-gray-300 transition"
+            >
+              Hủy
+            </button>
+        </div>
+      </div>
+
+    </div>
+
+    <script>
+      const API_URL = '/api/memories';
+
+      async function saveMemory() {
+        const id = document.getElementById("memory-id").value;
+        const date = document.getElementById("date").value;
+        const text = document.getElementById("text").value;
+
+        if (!date || !text) return;
+
+        try {
+          let res;
+          if (id) {
+             // Update
+             res = await auth.fetchProtected(`${API_URL}/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ date, text })
+             });
+          } else {
+             // Create
+             res = await auth.fetchProtected(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ date, text })
+             });
+          }
+          
+          if (res.ok) {
+            cancelEdit(); // Reset form
+            loadMemories();
+          } else {
+            alert('Lỗi lưu kỷ niệm!');
+          }
+        } catch (e) {
+          console.error(e);
+          alert('Lỗi kết nối!');
+        }
+      }
+
+      function cancelEdit() {
+        document.getElementById("memory-id").value = "";
+        document.getElementById("date").value = "";
+        document.getElementById("text").value = "";
+        
+        document.getElementById("save-btn").innerText = "Lưu lại khoảnh khắc 💖";
+        document.getElementById("cancel-btn").classList.add("hidden");
+        
+        // Remove pulse animation when editing (optional, or keep it)
+        document.getElementById("save-btn").classList.add("btn-pulse");
+      }
+
+      function syncSort(value) {
+        document.getElementById('sortOrder').value = value;
+        document.getElementById('sortOrderMobile').value = value;
+        loadMemories();
+      }
+
+      async function loadMemories() {
+        const list = document.getElementById("list");
+        list.innerHTML = "";
+        const sortType = document.getElementById("sortOrder").value || 'newest_date';
+
+        try {
+          const res = await auth.fetchProtected(API_URL);
+          let memories = await res.json();
+
+          // Sorting Logic
+          if (sortType === 'newest_date') {
+            memories.sort((a, b) => new Date(b.date) - new Date(a.date));
+          } else if (sortType === 'oldest_date') {
+            memories.sort((a, b) => new Date(a.date) - new Date(b.date));
+          } else if (sortType === 'recently_added') {
+            // Already sorted by server (createdAt desc due to unshift), aka "Just Added"
+            // If server implementation changes, we might want to rely on createdAt if available
+             memories.sort((a, b) => b.createdAt - a.createdAt);
+          }
+
+          memories.forEach((m, i) => {
+            const div = document.createElement("div");
+            div.className = "glass p-6 memory hover:scale-[1.02] transition";
+            div.style.animationDelay = `${i * 0.1}s`;
+
+            div.innerHTML = `
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-sm bg-pink-100 text-pink-600 px-3 py-1 rounded-full">
+                  ${m.date}
+                </span>
+                <div class="flex gap-2">
+                    <button onclick="editMemory('${m.id}', '${m.date}', \`${m.text.replace(/`/g, '\\`')}\`)" class="text-blue-400 hover:text-blue-600 text-sm">✎ Sửa</button>
+                    <button onclick="deleteMemory('${m.id}')" class="text-red-400 hover:text-red-600 text-sm">🗑 Xóa</button>
+                </div>
+              </div>
+              <p class="text-gray-700 leading-relaxed whitespace-pre-line">
+                “${m.text}”
+              </p>
+            `;
+
+            list.appendChild(div);
+          });
+        } catch (e) {
+          console.error(e);
+          list.innerHTML = '<p class="text-center text-red-500">Không thể tải kỷ niệm...</p>';
+        }
+      }
+
+      function editMemory(id, date, text) {
+        document.getElementById("memory-id").value = id;
+        document.getElementById("date").value = date;
+        document.getElementById("text").value = text;
+        
+        const saveBtn = document.getElementById("save-btn");
+        saveBtn.innerText = "Cập nhật ✏️";
+        saveBtn.classList.remove("btn-pulse"); // Stop pulsing when editing
+        
+        document.getElementById("cancel-btn").classList.remove("hidden");
+        
+        // Scroll to form on mobile
+        if(window.innerWidth < 768) {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+      }
+
+      async function deleteMemory(id) {
+        if(!confirm('Bạn có chắc muốn xóa không?')) return;
+        try {
+            await auth.fetchProtected(`${API_URL}/${id}`, { method: 'DELETE' });
+            loadMemories();
+        } catch (e) {
+            console.error(e);
+            alert('Lỗi xóa kỷ niệm!');
+        }
+      }
+
+      loadMemories();
+    </script>
+    <script src="js/music.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", initMusic);
+    </script>
+
+    <script src="js/main.js"></script>
+    <!-- DECORATION -->
+    <div class="fixed bottom-6 right-6 z-40 hidden md:block">
+      <img 
+        src="https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExbW5lenZyZHI5OXM2eW95b3h4b3JyejQwMzQyb3BkNm9lY2hpM3l5ZSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/RolCNxDyrWn16/giphy.gif" 
+        class="w-32 hover:scale-110 transition-transform duration-300 drop-shadow-xl"
+        alt="Cute decoration"
+      >
+    </div>
+  </body>
+</html>

@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Lỡ Lỡ 🩷</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+      /* ===== HEART ===== */
+      .heart {
+        position: fixed;
+        bottom: -20px;
+        font-size: 26px;
+        animation: flyUp linear forwards;
+      }
+
+      @keyframes flyUp {
+        from {
+          transform: translateY(0) scale(1);
+          opacity: 1;
+        }
+        to {
+          transform: translateY(-110vh) scale(1.3);
+          opacity: 0;
+        }
+      }
+
+      /* ===== BUTTON ===== */
+      .btn {
+        background: linear-gradient(135deg, #ec4899, #db2777);
+        color: white;
+        padding: 14px 28px;
+        border-radius: 999px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 12px 30px rgba(236, 72, 153, 0.45);
+      }
+      .btn:hover {
+        transform: scale(1.08);
+        box-shadow: 0 18px 45px rgba(236, 72, 153, 0.6);
+      }
+
+      /* ===== GLASS CARD ===== */
+      .glass {
+        background: rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(14px);
+        border-radius: 28px;
+        box-shadow: 0 30px 60px rgba(0, 0, 0, 0.18);
+      }
+
+      /* ===== Xoay đĩa nhạc ===== */
+      @keyframes spin {
+        from {
+          transform: rotate(0deg);
+        }
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      .spin {
+        animation: spin 4s linear infinite;
+      }
+    </style>
+  </head>
+
+  <body
+    class="min-h-screen bg-gradient-to-br from-pink-200 via-pink-100 to-rose-200 overflow-hidden"
+  >
+    <!-- ===== PASSWORD MODAL ===== -->
+    <div
+      id="password-modal"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
+    >
+      <div class="glass p-10 w-[92%] max-w-md text-center space-y-5">
+        <h2 class="text-3xl font-bold text-pink-600">🔒 Mật khẩu nè bé</h2>
+
+        <p class="text-gray-600 text-lg">Nhập đúng thì mới coi được nha 💖</p>
+
+        <input
+          id="password-input"
+          type="password"
+          placeholder="•••••"
+          class="w-full px-5 py-4 rounded-xl border text-lg text-center focus:outline-none focus:ring-2 focus:ring-pink-400"
+        />
+
+        <button
+          onclick="checkPassword()"
+          class="w-full bg-pink-500 hover:bg-pink-600 text-white py-4 rounded-xl text-lg font-semibold transition"
+        >
+          Mở cửa 💕
+        </button>
+
+        <p id="error-text" class="text-red-500 text-lg hidden">
+          Sai rồi 😝 thử lại đi
+        </p>
+      </div>
+    </div>
+
+    <!-- ===== MUSIC BUTTON ===== -->
+    <button
+      id="music-btn"
+      onclick="toggleMusic()"
+      class="fixed top-5 right-5 z-40 bg-pink-500 hover:bg-pink-600 text-white px-5 py-3 rounded-full shadow-xl text-lg transition"
+    >
+      ▶ Nhạc
+    </button>
+
+    <!-- ===== ADMIN BUTTON ===== -->
+    <!-- ===== ADMIN BUTTON (Moved to Bottom Left) ===== -->
+    <a
+      href="admin.html"
+      class="fixed bottom-5 left-5 z-40 bg-white/20 hover:bg-white/40 backdrop-blur-md border border-white/30 text-pink-600 px-5 py-3 rounded-full shadow-lg text-lg transition flex items-center gap-2 group"
+    >
+      <span class="group-hover:rotate-90 transition-transform duration-500">⚙️</span> Admin
+    </a>
+
+    <!-- ===== LOGOUT BUTTON (Moved to Top Left) ===== -->
+    <button
+      onclick="auth.logout()"
+      id="logout-btn"
+      class="fixed top-5 left-5 z-40 bg-gradient-to-r from-rose-400 to-pink-500 hover:from-rose-500 hover:to-pink-600 text-white px-6 py-3 rounded-full shadow-xl text-lg transition transform hover:scale-105 hidden flex items-center gap-2"
+    >
+      🔒 <span class="font-semibold">Khóa máy</span>
+    </button>
+
+    <div id="heart-container"></div>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <div
+      id="main-content"
+      class="hidden min-h-screen flex items-center justify-center px-6"
+    >
+      <div class="glass max-w-2xl w-full p-14 text-center space-y-10">
+        <div class="space-y-4">
+          <h1 class="text-5xl font-bold text-pink-600">Anh yêu em, Lỡ Lỡ 💖</h1>
+
+          <p
+            class="text-gray-600 text-lg leading-relaxed text-center font-light italic"
+          >
+            <strong class="text-black-400">Tụi mình đã có với nhau</strong>
+            <br />
+            <strong class="text-pink-500 text-2xl font-semibold">
+              những kỷ niệm rất đẹp 🌸
+            </strong>
+            <br />
+            <strong class="text-black-400">và anh mong rằng</strong>
+            <br />
+            <strong class="text-rose-400 text-2xl font-semibold">
+              mình sẽ còn viết tiếp câu chuyện này thật dài 💞
+            </strong>
+          </p>
+        </div>
+
+        <div class="flex flex-col md:flex-row gap-6 justify-center">
+          <a href="message.html" class="btn">💌 Lời nhắn</a>
+          <a href="gallery.html" class="btn">📸 Ảnh</a>
+          <a href="memories.html" class="btn">📖 Kỷ niệm</a>
+        </div>
+      </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script>
+      async function checkPassword() {
+        const input = document.getElementById("password-input").value;
+        const error = document.getElementById("error-text");
+
+        const success = await auth.login(input);
+
+        if (success) {
+          document.getElementById("password-modal").classList.add("hidden");
+          document.getElementById("main-content").classList.remove("hidden");
+          document.getElementById("logout-btn").classList.remove("hidden");
+          
+          localStorage.setItem("music_playing", "true");
+          toggleMusic();
+        } else {
+          error.classList.remove("hidden");
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        // Auto-login check
+        if (auth.isLoggedIn()) {
+             document.getElementById("password-modal").classList.add("hidden");
+             document.getElementById("main-content").classList.remove("hidden");
+             document.getElementById("logout-btn").classList.remove("hidden");
+        }
+
+        const input = document.getElementById("password-input");
+        input.focus();
+
+        input.addEventListener("keydown", (e) => {
+          if (e.key === "Enter") {
+            checkPassword();
+          }
+        });
+      });
+    </script>
+
+    <script src="js/music.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", initMusic);
+    </script>
+    <script src="js/main.js"></script>
+  </body>
+</html>

@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Ảnh kỷ niệm</title>
+    <script src="js/auth.js"></script>
+    <script>auth.checkAuth();</script>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+      #modal {
+        background: rgba(0, 0, 0, 0.85);
+      }
+
+      .fade-in {
+        animation: fadeIn 0.4s ease-in-out;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: scale(0.9);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+
+      .photo {
+        width: 100%;
+        aspect-ratio: 1 / 1;
+        object-fit: cover;
+        border-radius: 12px;
+        cursor: pointer;
+      }
+
+      .polaroid {
+        background: white;
+        padding: 10px 10px 22px;
+        border-radius: 14px;
+        box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
+        transition:
+          transform 0.35s ease,
+          box-shadow 0.35s ease;
+        transform-style: preserve-3d;
+      }
+
+      .polaroid:hover {
+        box-shadow: 0 20px 40px rgba(236, 72, 153, 0.35);
+      }
+
+      .caption {
+        font-size: 12px;
+        text-align: center;
+        margin-top: 6px;
+        color: #ec4899;
+        font-weight: 500;
+      }
+
+      .fall {
+        opacity: 0;
+        transform: translateY(40px) scale(0.95);
+        transition: all 0.8s ease;
+      }
+
+      .fall.show {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+
+      /* ===== FLOAT + GLOW EFFECT ===== */
+      @keyframes floatSoft {
+        0% {
+          transform: translateY(0px) scale(1);
+        }
+        50% {
+          transform: translateY(-6px) scale(1.015);
+        }
+        100% {
+          transform: translateY(0px) scale(1);
+        }
+      }
+
+      @keyframes glowSoft {
+        0% {
+          box-shadow: 0 12px 25px rgba(236, 72, 153, 0.15);
+        }
+        50% {
+          box-shadow: 0 20px 40px rgba(236, 72, 153, 0.35);
+        }
+        100% {
+          box-shadow: 0 12px 25px rgba(236, 72, 153, 0.15);
+        }
+      }
+
+      .float-soft {
+        animation: floatSoft 4s ease-in-out infinite;
+      }
+
+      .glow-soft {
+        animation: glowSoft 4s ease-in-out infinite;
+      }
+    </style>
+  </head>
+
+  <body class="bg-pink-50 min-h-screen p-6">
+    <!-- HOME -->
+    <a
+      href="index.html"
+      class="fixed top-4 left-4 z-50 bg-white/90 backdrop-blur text-pink-600 px-4 py-2 rounded-full shadow hover:bg-pink-100 transition"
+    >
+      ← Home
+    </a>
+
+    <h1 class="text-3xl text-center text-pink-600 font-bold mb-10">
+      Ảnh của tụi mình 📸
+    </h1>
+
+    <!-- GRID -->
+    <div
+      id="gallery"
+      class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-8"
+    ></div>
+
+    <!-- MODAL -->
+    <div
+      id="modal"
+      class="hidden fixed inset-0 flex items-center justify-center z-50"
+      onclick="closeModal()"
+    >
+      <img id="modal-img" class="max-h-[90%] max-w-[90%] rounded-xl fade-in" />
+    </div>
+
+    <!-- BACK TO TOP -->
+    <button
+      id="backToTop"
+      class="hidden fixed bottom-6 right-6 z-50 bg-pink-500 text-white w-12 h-12 rounded-full shadow hover:scale-110 transition"
+    >
+      ↑
+    </button>
+
+    <script>
+      const gallery = document.getElementById("gallery");
+      const modal = document.getElementById("modal");
+      const modalImg = document.getElementById("modal-img");
+      const backToTop = document.getElementById("backToTop");
+
+      let currentIndex = 0;
+      let slideInterval = null;
+      let startX = 0;
+      let images = [];
+
+      /* ===== OBSERVER (PHẢI Ở TRÊN) ===== */
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add("show");
+            }
+          });
+        },
+        { threshold: 0.15 },
+      );
+
+      /* ===== BUILD GALLERY ===== */
+      auth.fetchProtected('/api/gallery')
+        .then(res => res.json())
+        .then(data => {
+            images = data;
+            images.forEach((item, index) => {
+                const wrapper = document.createElement("div");
+                const delay = Math.random() * 2;
+                wrapper.className = "polaroid fall float-soft glow-soft";
+                wrapper.style.animationDelay = `${delay}s`;
+
+                const img = document.createElement("img");
+                // Load secure image
+                auth.loadImage(img, item.src);
+                img.className = "photo";
+
+                const caption = document.createElement("div");
+                caption.className = "caption";
+                caption.innerText = `💗 ${item.date}`;
+
+                // sole + nghiêng nhẹ
+                const offsetY = (index % 2 === 0 ? -1 : 1) * (4 + Math.random() * 6);
+                const offsetX = -4 + Math.random() * 8;
+                const rotate = -2 + Math.random() * 4;
+                wrapper.style.transform = `translate(${offsetX}px, ${offsetY}px) rotate(${rotate}deg)`;
+
+                img.onclick = () => openModal(index);
+
+                // tilt theo chuột
+                wrapper.addEventListener("mousemove", (e) => {
+                const rect = wrapper.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                const rx = (y / rect.height - 0.5) * 6;
+                const ry = (x / rect.width - 0.5) * -6;
+                wrapper.style.transform += ` rotateX(${rx}deg) rotateY(${ry}deg)`;
+                });
+
+                wrapper.addEventListener("mouseleave", () => {
+                wrapper.style.transform = `translate(${offsetX}px, ${offsetY}px) rotate(${rotate}deg)`;
+                });
+
+                wrapper.appendChild(img);
+                wrapper.appendChild(caption);
+                gallery.appendChild(wrapper);
+                observer.observe(wrapper);
+            });
+        });
+
+      /* ===== MODAL ===== */
+      function openModal(index) {
+        currentIndex = index;
+        modal.classList.remove("hidden");
+        updateModal();
+        startSlideshow();
+      }
+
+      function updateModal() {
+        // Load secure image for modal
+        auth.loadImage(modalImg, images[currentIndex].src);
+      }
+
+      function closeModal() {
+        modal.classList.add("hidden");
+        stopSlideshow();
+      }
+
+      /* ===== SLIDESHOW ===== */
+      function startSlideshow() {
+        slideInterval = setInterval(nextImage, 2500);
+      }
+
+      function stopSlideshow() {
+        clearInterval(slideInterval);
+      }
+
+      function nextImage() {
+        currentIndex = (currentIndex + 1) % images.length;
+        updateModal();
+      }
+
+      function prevImage() {
+        currentIndex = (currentIndex - 1 + images.length) % images.length;
+        updateModal();
+      }
+
+      /* ===== MOBILE SWIPE ===== */
+      modalImg.addEventListener("touchstart", (e) => {
+        startX = e.touches[0].clientX;
+      });
+
+      modalImg.addEventListener("touchend", (e) => {
+        const endX = e.changedTouches[0].clientX;
+        if (startX - endX > 50) nextImage();
+        if (endX - startX > 50) prevImage();
+      });
+
+      /* ===== BACK TO TOP ===== */
+      window.addEventListener("scroll", () => {
+        backToTop.classList.toggle("hidden", window.scrollY < 300);
+      });
+
+      backToTop.onclick = () => window.scrollTo({ top: 0, behavior: "smooth" });
+    </script>
+    <script src="js/music.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", initMusic);
+    </script>
+  </body>
+</html>

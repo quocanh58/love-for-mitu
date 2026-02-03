@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <script src="js/auth.js"></script>
+    <script>auth.checkAuth();</script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .glass {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen p-8">
+    
+    <!-- HOME BUTTON -->
+    <a href="/" class="fixed top-5 left-5 z-50 bg-pink-500 hover:bg-pink-600 text-white px-5 py-3 rounded-full shadow-xl text-lg transition">
+        ← Home
+    </a>
+
+    <!-- ADMIN LOGIN OVERLAY (Always appears on load) -->
+    <div id="admin-login-overlay" class="fixed inset-0 bg-gray-900/90 flex items-center justify-center z-[60]">
+        <div class="bg-white p-8 rounded-2xl shadow-2xl max-w-sm w-full space-y-6 text-center">
+            <h2 class="text-3xl font-bold text-pink-600">🔒 Admin Only</h2>
+            <p class="text-gray-500">Nhập mật khẩu để quản lý nha!</p>
+            <input type="password" id="admin-pass-input" placeholder="Mật khẩu..." class="w-full px-4 py-3 rounded-xl border-2 border-pink-100 focus:border-pink-500 outline-none text-lg text-center">
+            <button onclick="unlockAdmin()" class="w-full bg-pink-500 hover:bg-pink-600 text-white py-3 rounded-xl font-bold text-lg transition shadow-lg transform hover:scale-105">
+                Mở khóa 🔑
+            </button>
+            <p id="admin-login-error" class="text-red-500 font-medium hidden">Sai mật khẩu rồi 😝</p>
+        </div>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div id="dashboard" class="max-w-6xl mx-auto space-y-12 pb-20 filter blur-sm pointer-events-none transition duration-500">
+        <h1 class="text-4xl font-bold text-pink-600 text-center">💖 Admin Dashboard</h1>
+        
+            <div class="flex justify-center">
+    <!-- REPLACED LINK WITH BUTTON BELOW -->
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <!-- UPLOAD IMAGE -->
+            <section class="glass p-8 space-y-4 h-fit">
+                <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-2">📸 Upload Photo</h2>
+                <form id="uploadForm" class="space-y-4">
+                    <div>
+                        <label class="block font-medium mb-1">Image File</label>
+                        <input type="file" name="image" required class="w-full border p-2 rounded-lg bg-white">
+                    </div>
+                    <div>
+                        <label class="block font-medium mb-1">Date (DD/MM/YYYY)</label>
+                        <input type="text" name="date" placeholder="e.g. 25/12/2025" required class="w-full border p-2 rounded-lg">
+                    </div>
+                    <button type="submit" class="w-full bg-blue-500 text-white px-6 py-2 rounded-lg font-bold hover:bg-blue-600">Upload to Gallery</button>
+                </form>
+                <p id="uploadStatus" class="text-sm font-medium text-center"></p>
+            </section>
+
+            <!-- CREATE MESSAGE -->
+            <section class="glass p-8 space-y-4 h-fit">
+                <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-2">💌 Create Message</h2>
+                <textarea id="msgContent" rows="4" placeholder="Type your secret message here..." class="w-full border p-3 rounded-lg"></textarea>
+                <button onclick="createMessage()" class="w-full bg-purple-500 text-white px-6 py-2 rounded-lg font-bold hover:bg-purple-600">Generate Link</button>
+                
+                <div id="msgResult" class="hidden bg-green-100 p-4 rounded-lg border border-green-300">
+                    <p class="text-green-800 font-medium">Link created:</p>
+                    <a id="msgLink" href="#" target="_blank" class="text-blue-600 underline break-all text-sm"></a>
+                </div>
+            </section>
+        </div>
+
+        <!-- MANAGE GALLERY -->
+        <section class="glass p-8 space-y-6">
+            <div class="flex justify-between items-center">
+                <h2 class="text-2xl font-bold text-gray-800">🖼️ Manage Gallery</h2>
+                <button onclick="loadGallery()" class="text-sm bg-gray-200 px-3 py-1 rounded hover:bg-gray-300">↻ Refresh</button>
+            </div>
+            
+            <div id="galleryGrid" class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-4">
+                <!-- Items injected here -->
+            </div>
+        </section>
+
+        <!-- MANAGE MEMORIES -->
+        <section class="glass p-8 space-y-6">
+             <div class="flex justify-between items-center">
+                <h2 class="text-2xl font-bold text-gray-800">📖 Manage Memories</h2>
+                <button onclick="loadMemories()" class="text-sm bg-gray-200 px-3 py-1 rounded hover:bg-gray-300">↻ Refresh</button>
+            </div>
+            
+            <div id="memoriesList" class="space-y-4 max-h-[500px] overflow-y-auto pr-2">
+                <!-- Items injected here -->
+            </div>
+        </section>
+
+    </div>
+
+    <!-- EDIT MODAL -->
+    <div id="editModal" class="hidden fixed inset-0 bg-black/50 z-[60] flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl p-6 max-w-md w-full space-y-4">
+            <h3 class="text-xl font-bold">Edit Item</h3>
+            <input type="hidden" id="editType"> <!-- 'memory' or 'gallery' -->
+            <input type="hidden" id="editId">
+            
+            <div>
+                <label class="block text-sm font-medium mb-1">Date</label>
+                <input id="editDate" type="text" class="w-full border p-2 rounded">
+            </div>
+            
+            <div id="editTextContainer">
+                <label class="block text-sm font-medium mb-1">Content</label>
+                <textarea id="editText" rows="4" class="w-full border p-2 rounded"></textarea>
+            </div>
+
+            <div class="flex justify-end gap-2">
+                <button onclick="closeEditModal()" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded">Cancel</button>
+                <button onclick="saveEdit()" class="px-4 py-2 bg-pink-500 text-white rounded hover:bg-pink-600">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- INIT ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // Focus admin pass
+            const input = document.getElementById('admin-pass-input');
+            input.focus();
+            input.addEventListener('keydown', (e) => {
+                if(e.key === 'Enter') unlockAdmin();
+            });
+
+            loadGallery();
+            loadMemories();
+        });
+
+        // --- ADMIN SECURITY ---
+        async function unlockAdmin() {
+            const pass = document.getElementById('admin-pass-input').value;
+            const error = document.getElementById('admin-login-error');
+            
+            // Verify password using auth.login (it hits /api/login)
+            const success = await auth.login(pass);
+            
+            if (success) {
+                document.getElementById('admin-login-overlay').classList.add('hidden');
+                const dash = document.getElementById('dashboard');
+                dash.classList.remove('blur-sm', 'pointer-events-none');
+            } else {
+                error.classList.remove('hidden');
+            }
+        }
+
+        async function verifyAction() {
+            const pass = prompt("🔒 Nhập mật khẩu để xóa vĩnh viễn:");
+            if (!pass) return false;
+            const success = await auth.login(pass);
+            if (!success) alert("Sai mật khẩu! 🚫");
+            return success;
+        }
+
+        // --- UPLOAD & MESSAGE forms ---
+        document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const status = document.getElementById('uploadStatus');
+            status.innerText = 'Uploading...';
+            try {
+                // auth.fetchProtected handles headers correctly (preserving FormData boundary)
+                const res = await auth.fetchProtected('/api/gallery', { method: 'POST', body: formData });
+                if(res.ok) {
+                    status.innerText = 'Upload Successful!';
+                    status.className = 'text-green-600 font-bold';
+                    e.target.reset();
+                    loadGallery();
+                } else { throw new Error('Failed'); }
+            } catch(err) {
+                status.innerText = 'Upload Failed';
+                status.className = 'text-red-600 font-bold';
+            }
+        });
+
+        async function createMessage() {
+            const content = document.getElementById('msgContent').value;
+            if(!content) return;
+            try {
+                const res = await auth.fetchProtected('/api/messages', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ content })
+                });
+                const data = await res.json();
+                const link = `${window.location.origin}/message.html?id=${data.id}`;
+                const label = document.getElementById('msgLink');
+                label.href = link; label.innerText = link;
+                document.getElementById('msgResult').classList.remove('hidden');
+            } catch(e) { alert('Error'); }
+        }
+
+        // --- GALLERY MANAGER ---
+        async function loadGallery() {
+            const grid = document.getElementById('galleryGrid');
+            grid.innerHTML = '<p>Loading...</p>';
+            try {
+                const res = await auth.fetchProtected('/api/gallery');
+                const images = await res.json();
+                grid.innerHTML = '';
+                images.forEach(img => {
+                    const div = document.createElement('div');
+                    div.className = "relative group bg-white p-2 rounded shadow";
+                    
+                    const imageEl = document.createElement('img');
+                    imageEl.className = "w-full aspect-square object-cover rounded";
+                    // Secure Load
+                    auth.loadImage(imageEl, img.src);
+
+                    const container = document.createElement('div');
+                    container.appendChild(imageEl);
+                    container.insertAdjacentHTML('beforeend', `
+                        <div class="mt-2 text-center text-xs font-bold text-pink-500">${img.date}</div>
+                        <div class="absolute inset-0 bg-black/60 hidden group-hover:flex flex-col items-center justify-center gap-2 rounded transition">
+                            <button onclick="openEditGallery('${img.src}', '${img.date}')" class="bg-blue-500 text-white text-xs px-3 py-1 rounded hover:bg-blue-600 w-20">Edit Date</button>
+                            <button onclick="deleteGallery('${img.src}')" class="bg-red-500 text-white text-xs px-3 py-1 rounded hover:bg-red-600 w-20">Delete</button>
+                        </div>
+                    `);
+                    
+                    div.appendChild(container);
+                    grid.appendChild(div);
+                });
+            } catch(e) { grid.innerHTML = 'Error loading gallery'; }
+        }
+
+        async function deleteGallery(filename) {
+            // Verify Password First
+            if (!await verifyAction()) return;
+
+            if(!confirm('Bạn có chắc chắn xóa ảnh này không?')) return;
+            try {
+                const res = await auth.fetchProtected(`/api/gallery/${filename}`, { method: 'DELETE' });
+                if(res.ok) loadGallery();
+                else alert('Failed to delete');
+            } catch(e) { alert('Error'); }
+        }
+
+        function openEditGallery(src, date) {
+            document.getElementById('editType').value = 'gallery';
+            document.getElementById('editId').value = src;
+            document.getElementById('editDate').value = date;
+            document.getElementById('editTextContainer').classList.add('hidden');
+            document.getElementById('editModal').classList.remove('hidden');
+        }
+
+        // --- MEMORIES MANAGER ---
+        async function loadMemories() {
+            const list = document.getElementById('memoriesList');
+            list.innerHTML = '<p>Loading...</p>';
+            try {
+                const res = await auth.fetchProtected('/api/memories');
+                const memories = await res.json();
+                list.innerHTML = '';
+                memories.forEach(m => {
+                    const div = document.createElement('div');
+                    div.className = "bg-white p-4 rounded-lg shadow flex justify-between items-start";
+                    div.innerHTML = `
+                        <div>
+                            <span class="inline-block bg-pink-100 text-pink-600 text-xs px-2 py-1 rounded-full mb-1">${m.date}</span>
+                            <p class="text-gray-700 text-sm whitespace-pre-line">${m.text}</p>
+                        </div>
+                        <div class="flex gap-2 ml-4 shrink-0">
+                            <button onclick="openEditMemory('${m.id}', '${m.date}', \`${m.text.replace(/`/g, '\\`')}\`)" class="text-blue-500 hover:text-blue-700 text-sm">✎</button>
+                            <button onclick="deleteMemory('${m.id}')" class="text-red-500 hover:text-red-700 text-sm">🗑</button>
+                        </div>
+                    `;
+                    list.appendChild(div);
+                });
+            } catch(e) { list.innerHTML = 'Error loading memories'; }
+        }
+
+        async function deleteMemory(id) {
+            // Verify Password First
+            if (!await verifyAction()) return;
+
+            if(!confirm('Bạn có chắc chắn xóa kỷ niệm này?')) return;
+            try {
+                const res = await auth.fetchProtected(`/api/memories/${id}`, { method: 'DELETE' });
+                if(res.ok) loadMemories();
+                else alert('Failed to delete');
+            } catch(e) { alert('Error'); }
+        }
+
+        function openEditMemory(id, date, text) {
+            document.getElementById('editType').value = 'memory';
+            document.getElementById('editId').value = id;
+            document.getElementById('editDate').value = date;
+            document.getElementById('editText').value = text;
+            document.getElementById('editTextContainer').classList.remove('hidden');
+            document.getElementById('editModal').classList.remove('hidden');
+        }
+
+        // --- SHARED EDIT LOGIC ---
+        function closeEditModal() {
+            document.getElementById('editModal').classList.add('hidden');
+        }
+
+        async function saveEdit() {
+            const type = document.getElementById('editType').value;
+            const id = document.getElementById('editId').value;
+            const date = document.getElementById('editDate').value;
+            
+            if(type === 'gallery') {
+                await auth.fetchProtected(`/api/gallery/${id}`, {
+                    method: 'PUT',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ date })
+                });
+                loadGallery();
+            } else {
+                const text = document.getElementById('editText').value;
+                await auth.fetchProtected(`/api/memories/${id}`, {
+                    method: 'PUT',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ date, text })
+                });
+                loadMemories();
+            }
+            closeEditModal();
+        }
+    </script>
+</body>
+</html>
