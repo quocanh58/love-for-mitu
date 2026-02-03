@@ -54,16 +54,12 @@ const auth = {
         return fetch(url, { ...options, headers });
     },
 
-    // Load Image as Blob (Obfuscated) and set src
+    // Load Image as Blob and set src
     loadImage: async (imgElement, filename) => {
         try {
             const res = await auth.fetchProtected(`/api/images/${filename}`);
             if (res.ok) {
-                const json = await res.json(); // Get Base64 Data
-                // Convert Base64 Data URL to Blob
-                const blobRes = await fetch(json.data);
-                const blob = await blobRes.blob();
-                
+                const blob = await res.blob();
                 const objectURL = URL.createObjectURL(blob);
                 imgElement.src = objectURL;
             } else {
