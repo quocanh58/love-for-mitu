@@ -2,6 +2,7 @@
 <html lang="vi">
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Ảnh kỷ niệm</title>
     <script src="js/auth.js"></script>
     <script>auth.checkAuth();</script>
@@ -104,7 +105,7 @@
     </style>
   </head>
 
-  <body class="bg-pink-50 min-h-screen p-6">
+  <body class="bg-pink-50 min-h-screen px-6 pb-6 pt-24">
     <!-- HOME -->
     <a
       href="index.html"
@@ -135,9 +136,10 @@
     <!-- BACK TO TOP -->
     <button
       id="backToTop"
-      class="hidden fixed bottom-6 right-6 z-50 bg-pink-500 text-white w-12 h-12 rounded-full shadow hover:scale-110 transition"
+      onclick="scrollToTop(1500)"
+      class="hidden fixed bottom-6 right-6 z-50 bg-pink-500 hover:bg-pink-600 text-white w-12 h-12 rounded-full shadow-lg hover:scale-110 transition flex items-center justify-center text-xl"
     >
-      ↑
+      ⬆
     </button>
 
     <script>
@@ -265,7 +267,26 @@
         backToTop.classList.toggle("hidden", window.scrollY < 300);
       });
 
-      backToTop.onclick = () => window.scrollTo({ top: 0, behavior: "smooth" });
+      backToTop.onclick = () => scrollToTop(1500);
+
+      function scrollToTop(duration) {
+        const start = window.scrollY;
+        const startTime = performance.now();
+
+        function scroll(currentTime) {
+            const timeElapsed = currentTime - startTime;
+            const progress = Math.min(timeElapsed / duration, 1);
+            // Ease in out function
+            const ease = t => t < .5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+
+            window.scrollTo(0, start * (1 - ease(progress)));
+
+            if (timeElapsed < duration) {
+                requestAnimationFrame(scroll);
+            }
+        }
+        requestAnimationFrame(scroll);
+      }
     </script>
     <script src="js/music.js"></script>
     <script>

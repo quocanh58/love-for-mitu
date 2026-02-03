@@ -66,12 +66,19 @@ app.post('/api/login', (req, res) => {
 });
 
 // -- PROTECTED IMAGE API --
+// -- PROTECTED IMAGE API --
 app.get('/api/images/:filename', authenticateToken, (req, res) => {
     const { filename } = req.params;
     const filePath = path.join(PRIVATE_IMG_DIR, filename);
     
     if (fs.existsSync(filePath)) {
-        res.sendFile(filePath);
+        // Read file as Base64 to obfuscate in Network Tab
+        const ext = path.extname(filename).slice(1);
+        const mime = ext === 'png' ? 'image/png' : 'image/jpeg';
+        const b64 = fs.readFileSync(filePath, { encoding: 'base64' });
+        const dataUrl = `data:${mime};base64,${b64}`;
+        
+        res.json({ data: dataUrl });
     } else {
         res.status(404).json({ error: 'Image not found' });
     }

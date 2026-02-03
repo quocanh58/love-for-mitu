@@ -2,6 +2,7 @@
 <html lang="vi">
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Lỡ Lỡ 🩷</title>
     <script src="https://cdn.tailwindcss.com"></script>
 
@@ -98,30 +99,33 @@
       </div>
     </div>
 
-    <!-- ===== MUSIC BUTTON ===== -->
-    <button
-      id="music-btn"
-      onclick="toggleMusic()"
-      class="fixed top-5 right-5 z-40 bg-pink-500 hover:bg-pink-600 text-white px-5 py-3 rounded-full shadow-xl text-lg transition"
-    >
-      ▶ Nhạc
-    </button>
+    <!-- ===== TOP RIGHT BUTTONS (Grouped) ===== -->
+    <div class="fixed top-3 right-3 md:top-5 md:right-5 z-[60] flex gap-2 md:gap-4 items-center">
+        <!-- ADMIN -->
+        <a
+          href="admin.html"
+          class="bg-pink-500 hover:bg-pink-600 text-white px-3 py-2 md:px-5 md:py-3 rounded-full shadow-xl text-sm md:text-lg transition flex items-center gap-2"
+        >
+          ⚙️ <span class="hidden md:inline">Admin</span>
+        </a>
 
-    <!-- ===== ADMIN BUTTON (Moved to Top Right) ===== -->
-    <a
-      href="admin.html"
-      class="fixed top-5 right-36 z-40 bg-pink-500 hover:bg-pink-600 text-white px-5 py-3 rounded-full shadow-xl text-lg transition flex items-center gap-2"
-    >
-      ⚙️ Admin
-    </a>
+        <!-- MUSIC -->
+        <button
+          id="music-btn"
+          onclick="toggleMusic()"
+          class="bg-pink-500 hover:bg-pink-600 text-white px-3 py-2 md:px-5 md:py-3 rounded-full shadow-xl text-sm md:text-lg transition"
+        >
+          ▶ <span class="hidden md:inline">Nhạc</span>
+        </button>
+    </div>
 
-    <!-- ===== LOGOUT BUTTON (Moved to Top Left) ===== -->
+    <!-- ===== LOGOUT BUTTON (Top Left) ===== -->
     <button
       onclick="auth.logout()"
       id="logout-btn"
-      class="fixed top-5 left-5 z-40 bg-gradient-to-r from-rose-400 to-pink-500 hover:from-rose-500 hover:to-pink-600 text-white px-6 py-3 rounded-full shadow-xl text-lg transition transform hover:scale-105 hidden flex items-center gap-2"
+      class="fixed top-3 left-3 md:top-5 md:left-5 z-[60] bg-gradient-to-r from-rose-400 to-pink-500 hover:from-rose-500 hover:to-pink-600 text-white px-3 py-2 md:px-6 md:py-3 rounded-full shadow-xl text-sm md:text-lg transition transform hover:scale-105 hidden flex items-center gap-2"
     >
-      🔒 <span class="font-semibold">Khóa máy</span>
+      🔒 <span class="font-semibold">Khóa</span>
     </button>
 
     <div id="heart-container"></div>
@@ -131,9 +135,9 @@
       id="main-content"
       class="hidden min-h-screen flex items-center justify-center px-6"
     >
-      <div class="glass max-w-2xl w-full p-14 text-center space-y-10">
+      <div class="glass max-w-2xl w-full p-8 md:p-14 text-center space-y-6 md:space-y-10">
         <div class="space-y-4">
-          <h1 class="text-5xl font-bold text-pink-600">Anh yêu em, Lỡ Lỡ 💖</h1>
+          <h1 class="text-3xl md:text-5xl font-bold text-pink-600">Anh yêu em, Lỡ Lỡ 💖</h1>
 
           <p
             class="text-gray-600 text-lg leading-relaxed text-center font-light italic"

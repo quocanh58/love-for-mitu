@@ -54,17 +54,20 @@ const auth = {
         return fetch(url, { ...options, headers });
     },
 
-    // Load Image as Blob and set src
+    // Load Image as Blob (Obfuscated) and set src
     loadImage: async (imgElement, filename) => {
         try {
             const res = await auth.fetchProtected(`/api/images/${filename}`);
             if (res.ok) {
-                const blob = await res.blob();
+                const json = await res.json(); // Get Base64 Data
+                // Convert Base64 Data URL to Blob
+                const blobRes = await fetch(json.data);
+                const blob = await blobRes.blob();
+                
                 const objectURL = URL.createObjectURL(blob);
                 imgElement.src = objectURL;
-                // Optional: Revoke URL on unload to free memory, or keep for session
             } else {
-                imgElement.src = ''; // Clear or set error placeholder
+                imgElement.src = ''; 
             }
         } catch (e) {
             console.error('Failed to load image:', filename);
