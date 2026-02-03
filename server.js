@@ -6,7 +6,7 @@ const fs = require('fs');
 const path = require('path');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3503;
 const SECRET_TOKEN = "love_token_21122025"; // Simple secret token
 const PASSWORD = "21122025"; // Password for Index
 
@@ -58,7 +58,7 @@ const authenticateToken = (req, res, next) => {
 // -- LOGIN API --
 app.post('/api/login', (req, res) => {
     const { password } = req.body;
-    if (password === PASSWORD) {
+    if (password && String(password).trim() === PASSWORD) {
         res.json({ token: SECRET_TOKEN });
     } else {
         res.status(401).json({ error: 'Wrong password' });
