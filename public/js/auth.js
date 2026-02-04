@@ -56,8 +56,11 @@ const auth = {
     logout: () => {
         sessionStorage.removeItem(AUTH_KEY);
         sessionStorage.removeItem(AUTH_TIMESTAMP);
-        // Only redirect if not already on index
-        if (!window.location.pathname.endsWith('index.html') && window.location.pathname !== '/') {
+        
+        // Always force reload/redirect to ensure UI state resets (especially for index.html)
+        if (window.location.pathname.endsWith('index.html') || window.location.pathname === '/') {
+             window.location.reload();
+        } else {
              window.location.href = 'index.html';
         }
     },
