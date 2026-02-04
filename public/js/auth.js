@@ -1,20 +1,33 @@
 const AUTH_KEY = 'love_token';
+const AUTH_TIMESTAMP = 'love_auth_active';
 const LOGIN_URL = '/api/login';
+const SESSION_DURATION = 30 * 60 * 1000; // 30 Minutes
 
 const auth = {
     // Check if user is logged in. If not, redirect to index.
     checkAuth: () => {
-        const token = localStorage.getItem(AUTH_KEY);
-        if (!token) {
-            window.location.href = '/index.html';
+        const token = sessionStorage.getItem(AUTH_KEY);
+        const lastActive = sessionStorage.getItem(AUTH_TIMESTAMP);
+        const now = Date.now();
+
+        if (!token || !lastActive || (now - lastActive > SESSION_DURATION)) {
+            auth.logout();
             return null;
         }
+
         return token;
     },
 
     // Check if user is already logged in (for index page)
     isLoggedIn: () => {
-        return !!localStorage.getItem(AUTH_KEY);
+        const token = sessionStorage.getItem(AUTH_KEY);
+        const lastActive = sessionStorage.getItem(AUTH_TIMESTAMP);
+        const now = Date.now();
+
+        if (token && lastActive && (now - lastActive <= SESSION_DURATION)) {
+             return true;
+        }
+        return false;
     },
 
     // Login function
@@ -28,7 +41,8 @@ const auth = {
             
             if (res.ok) {
                 const data = await res.json();
-                localStorage.setItem(AUTH_KEY, data.token);
+                sessionStorage.setItem(AUTH_KEY, data.token);
+                sessionStorage.setItem(AUTH_TIMESTAMP, Date.now());
                 return true;
             }
             return false;
@@ -40,13 +54,17 @@ const auth = {
 
     // Logout function
     logout: () => {
-        localStorage.removeItem(AUTH_KEY);
-        window.location.href = '/index.html';
+        sessionStorage.removeItem(AUTH_KEY);
+        sessionStorage.removeItem(AUTH_TIMESTAMP);
+        // Only redirect if not already on index
+        if (!window.location.pathname.endsWith('index.html') && window.location.pathname !== '/') {
+             window.location.href = 'index.html';
+        }
     },
 
     // Fetch wrapper with Auth Header
     fetchProtected: async (url, options = {}) => {
-        const token = localStorage.getItem(AUTH_KEY);
+        const token = sessionStorage.getItem(AUTH_KEY);
         const headers = {
             ...options.headers,
             'Authorization': `Bearer ${token}`
@@ -73,3 +91,11 @@ const auth = {
 
 // Expose globally
 window.auth = auth;
+
+// Periodic Session Check (Every 1 minute)
+setInterval(() => {
+    // Only check if we think we are logged in, to assume auto-logout
+    if (sessionStorage.getItem(AUTH_KEY)) {
+        auth.checkAuth();
+    }
+}, 60000);
