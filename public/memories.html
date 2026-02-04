@@ -46,6 +46,14 @@
           box-shadow: 0 0 0 0 rgba(236, 72, 153, 0);
         }
       }
+      /* ===== MODAL & BUTTON ANIMATION ===== */
+      .animate-bounce-slow {
+        animation: bounceSlow 3s infinite;
+      }
+      @keyframes bounceSlow {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-8px); }
+      }
     </style>
   </head>
 
@@ -60,83 +68,87 @@
       ← Home
     </a>
 
-    <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
+    <div class="max-w-4xl mx-auto">
       
-      <!-- LIST (Left Side - 7 cols) -->
-      <div class="md:col-span-7 space-y-6 order-2 md:order-1">
-        <div class="flex items-center justify-between mb-4 hidden md:flex">
-          <h2 class="text-2xl font-bold text-pink-600">📖 Danh sách kỷ niệm</h2>
-          <select id="sortOrder" onchange="syncSort(this.value)" class="bg-white/50 border border-pink-200 text-pink-600 text-sm rounded-lg focus:ring-pink-500 focus:border-pink-500 block p-2 outline-none">
-            <option value="newest_date">📅 Mới nhất</option>
-            <option value="oldest_date">📅 Cũ nhất</option>
-            <option value="recently_added">✨ Vừa thêm</option>
-          </select>
-        </div>
-        <!-- Mobile Sort (Visible on small screens) -->
-        <div class="md:hidden flex justify-end mb-2">
-             <select id="sortOrderMobile" onchange="syncSort(this.value)" class="bg-white/50 border border-pink-200 text-pink-600 text-sm rounded-lg p-2 outline-none">
+      <!-- HEADER + SORT -->
+      <div class="flex items-center justify-between mb-8">
+        <h2 class="text-xl md:text-3xl font-bold text-pink-600 drop-shadow-sm">📖 Danh sách kỷ niệm</h2>
+        
+        <div class="flex gap-2">
+            <select id="sortOrder" onchange="syncSort(this.value)" class="glass border-none text-pink-600 text-xs md:text-sm rounded-xl px-3 py-2 outline-none shadow-sm cursor-pointer hover:bg-white/80 transition">
                 <option value="newest_date">📅 Mới nhất</option>
                 <option value="oldest_date">📅 Cũ nhất</option>
                 <option value="recently_added">✨ Vừa thêm</option>
-             </select>
+            </select>
         </div>
-        <div id="list" class="space-y-6"></div>
       </div>
 
-      <!-- INPUT (Right Side - 5 cols) -->
-      <div class="glass p-6 md:p-8 space-y-6 md:col-span-5 sticky top-24 order-1 md:order-2">
-        <h1 class="text-3xl font-bold text-pink-600 text-center">
+      <!-- LIST CONTAINER -->
+      <div id="list" class="space-y-6 min-h-[50vh]"></div>
+
+    </div>
+
+    <!-- ===== FLOATING ADD BUTTON ===== -->
+    <button
+      onclick="openCreateModal()"
+      class="fixed bottom-6 right-6 z-40 bg-gradient-to-r from-pink-500 to-rose-500 hover:scale-110 active:scale-95 text-white w-16 h-16 rounded-full shadow-2xl flex items-center justify-center text-4xl transition duration-300 animate-bounce-slow"
+    >
+      ➕
+    </button>
+
+    <!-- ===== MODAL FORM ===== -->
+    <div
+      id="memoryModal"
+      class="hidden fixed inset-0 z-[70] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 transition-opacity duration-300"
+      onclick="if(event.target === this) closeModal()"
+    >
+      <div class="bg-white/95 backdrop-blur-xl p-8 rounded-[32px] shadow-2xl max-w-lg w-full transform transition-all scale-100 relative">
+        
+        <!-- Close Button -->
+        <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-2xl">
+            ✕
+        </button>
+
+        <h1 id="modal-title" class="text-3xl font-bold text-pink-600 text-center mb-2">
           Thêm kỷ niệm mới
         </h1>
 
-        <p class="text-center text-gray-600 text-sm">
-          Mỗi ngày bên nhau là một điều đáng nhớ 💞
+        <p class="text-center text-gray-500 text-sm mb-6">
+          Lưu giữ những khoảnh khắc ngọt ngào �
         </p>
 
-        <div class="space-y-4">
+        <div class="space-y-5">
           <input type="hidden" id="memory-id">
+          
           <div>
-            <label class="block text-pink-600 font-medium mb-1">
-              📅 Ngày
-            </label>
+            <label class="block text-pink-600 font-bold mb-2 ml-1">📅 Ngày</label>
             <input
               id="date"
               type="date"
-              class="w-full px-4 py-3 rounded-xl border focus:ring-2 focus:ring-pink-400 outline-none"
+              class="w-full px-5 py-3 rounded-xl bg-pink-50 border-none focus:ring-2 focus:ring-pink-400 outline-none text-gray-700 font-medium"
             />
           </div>
 
           <div>
-            <label class="block text-pink-600 font-medium mb-1">
-              💭 Kỷ niệm
-            </label>
+            <label class="block text-pink-600 font-bold mb-2 ml-1">💭 Nội dung</label>
             <textarea
               id="text"
-              rows="4"
-              placeholder="Hôm nay tụi mình đã cười với nhau vì..."
-              class="w-full px-4 py-3 rounded-xl border focus:ring-2 focus:ring-pink-400 outline-none"
+              rows="5"
+              placeholder="Kể về ngày hôm nay đi..."
+              class="w-full px-5 py-3 rounded-xl bg-pink-50 border-none focus:ring-2 focus:ring-pink-400 outline-none text-gray-700 leading-relaxed resize-none"
             ></textarea>
           </div>
+
+          <button
+            id="save-btn"
+            onclick="saveMemory()"
+            class="w-full bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition transform active:scale-95"
+          >
+            Lưu lại nhé 💖
+          </button>
         </div>
 
-        <div class="flex gap-2">
-            <button
-              id="save-btn"
-              onclick="saveMemory()"
-              class="flex-1 bg-pink-500 hover:bg-pink-600 text-white py-4 rounded-xl font-semibold text-lg transition btn-pulse"
-            >
-              Lưu lại khoảnh khắc 💖
-            </button>
-            <button
-              id="cancel-btn"
-              onclick="cancelEdit()"
-              class="hidden px-4 bg-gray-200 text-gray-600 rounded-xl font-semibold hover:bg-gray-300 transition"
-            >
-              Hủy
-            </button>
-        </div>
       </div>
-
     </div>
 
     <script>
@@ -168,7 +180,7 @@
           }
           
           if (res.ok) {
-            cancelEdit(); // Reset form
+            closeModal(); // Close modal
             loadMemories();
           } else {
             alert('Lỗi lưu kỷ niệm!');
@@ -179,21 +191,40 @@
         }
       }
 
-      function cancelEdit() {
+      const modal = document.getElementById("memoryModal");
+      const title = document.getElementById("modal-title");
+      const saveBtn = document.getElementById("save-btn");
+
+      function openCreateModal() {
         document.getElementById("memory-id").value = "";
-        document.getElementById("date").value = "";
+        document.getElementById("date").value = new Date().toISOString().split('T')[0];
         document.getElementById("text").value = "";
         
-        document.getElementById("save-btn").innerText = "Lưu lại khoảnh khắc 💖";
-        document.getElementById("cancel-btn").classList.add("hidden");
+        title.innerText = "Thêm kỷ niệm mới";
+        saveBtn.innerText = "Lưu lại nhé 💖";
         
-        // Remove pulse animation when editing (optional, or keep it)
-        document.getElementById("save-btn").classList.add("btn-pulse");
+        modal.classList.remove("hidden");
+        // Focus text?
       }
 
+      function closeModal() {
+        modal.classList.add("hidden");
+      }
+
+      function editMemory(id, date, text) {
+        document.getElementById("memory-id").value = id;
+        document.getElementById("date").value = date;
+        document.getElementById("text").value = text;
+        
+        title.innerText = "Chỉnh sửa kỷ niệm ✏️";
+        saveBtn.innerText = "Cập nhật";
+        
+        modal.classList.remove("hidden");
+      }
+      
+      // Update syncSort to just loadMemories? Or remove it if not used. 
+      // User might still change sort.
       function syncSort(value) {
-        document.getElementById('sortOrder').value = value;
-        document.getElementById('sortOrderMobile').value = value;
         loadMemories();
       }
 
