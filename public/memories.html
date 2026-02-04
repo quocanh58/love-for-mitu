@@ -258,10 +258,7 @@
                 <span class="text-sm bg-pink-100 text-pink-600 px-3 py-1 rounded-full">
                   ${m.date}
                 </span>
-                <div class="flex gap-2">
-                    <button onclick="editMemory('${m.id}', '${m.date}', \`${m.text.replace(/`/g, '\\`')}\`)" class="text-blue-400 hover:text-blue-600 text-sm">✎ Sửa</button>
-                    <button onclick="deleteMemory('${m.id}')" class="text-red-400 hover:text-red-600 text-sm">🗑 Xóa</button>
-                </div>
+                
               </div>
               <p class="text-gray-700 leading-relaxed whitespace-pre-line">
                 “${m.text}”
