@@ -15,14 +15,10 @@ const PASSWORD = "21122025"; // Password for Index
 // Middleware
 app.use(cors());
 app.use(bodyParser.json());
-// Cache assets (Music) for 7 days to eliminate network delay
-// app.use(express.static('public', { maxAge: '7d' }));
 
-// app.use(express.static('public', {
-//   etag: false,
-//   lastModified: false,
-//   maxAge: 0
-// }));
+// Restore static file serving (Fixes "Cannot GET /")
+// Note: Add { maxAge: '7d' } here if you want seamless music caching later.
+app.use(express.static('public'));
 
 app.use(express.json({ limit: '50mb' })); // Allow large images
 // Data Paths
@@ -230,7 +226,7 @@ app.listen(PORT, () => {
     console.log(`Server running at http://localhost:${PORT}`);
 });
 
-app.get('/', (req, res) => {
-  res.send('❤️ Love for Mitu server is running');
-});
+// app.get('/', (req, res) => {
+//   res.send('❤️ Love for Mitu server is running');
+// });
 
