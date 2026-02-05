@@ -177,10 +177,13 @@
           document.getElementById("main-content").classList.remove("hidden");
           document.getElementById("logout-btn").classList.remove("hidden");
           
-          // Ensure music plays if it was paused (e.g. by policy), but don't stop it if playing
+          // User Clicked Login -> Guaranteed Play (Bypasses Autoplay Block)
           const audio = document.getElementById('bg-music');
-          if (audio && audio.paused) {
-              toggleMusic(); 
+          if (audio) {
+              audio.play().then(() => {
+                  sessionStorage.setItem("music_playing", "true");
+                  if(typeof updateMusicUI === 'function') updateMusicUI(true);
+              }).catch(e => console.error("Login play error:", e));
           }
         } else {
           error.classList.remove("hidden");

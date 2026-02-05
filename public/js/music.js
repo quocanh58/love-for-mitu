@@ -1,85 +1,93 @@
-let music = null;
-let isPlaying = false;
+// ===== OPTIMIZED SEAMLESS MUSIC =====
+// Create Audio object immediately (don't wait for DOM)
+if (!window.bgMusic) {
+    window.bgMusic = new Audio("asset/music/noi-nay-co-anh.mp3");
+    window.bgMusic.loop = true;
+    window.bgMusic.volume = 0.6;
+    window.bgMusic.preload = "auto";
+}
+
+// State Management
+const audio = window.bgMusic;
 
 function initMusic() {
-  if (music) return;
+  // Check if already handled to prevent double-init issues
+  if (window.musicInitialized) return;
+  window.musicInitialized = true;
 
-  music = new Audio("asset/music/noi-nay-co-anh.mp3");
-  music.loop = true;
-  music.volume = 0.7;
-
-  // 1. Tạo hoặc lấy Audio Element
-  if (!document.getElementById("bg-music")) {
-    bgMusic = document.createElement("audio");
-    bgMusic.id = "bg-music";
-    bgMusic.src = "asset/music/noi-nay-co-anh.mp3"; // Đường dẫn nhạc
-    bgMusic.loop = true;
-    bgMusic.volume = 0.6; // Âm lượng vừa phải
-    document.body.appendChild(bgMusic);
-  } else {
-    bgMusic = document.getElementById("bg-music");
-  }
-
-  // 2. Khôi phục trạng thái từ Session (để không bị ngắt quãng khi chuyển trang)
+  // Restore State immediately
   const storedTime = parseFloat(sessionStorage.getItem("music_time")) || 0;
-  // Default to TRUE (Auto Play) if not set. Only stop if user explicitly paused ('false').
+  // Default to TRUE (Auto Play).
   const shouldPlay = sessionStorage.getItem("music_playing") !== "false";
 
-  // Set tua nhạc đến đúng đoạn cũ
-  // Kiểm tra nếu savedTime hợp lệ (tránh NaN)
-  if (!isNaN(storedTime)) {
-      bgMusic.currentTime = storedTime;
+  // Immediate Seek (Attempt minimal delay)
+  // We set currentTime even before metadata if possible, standard HTML5 Audio supports this.
+  if (storedTime > 0) {
+      audio.currentTime = storedTime;
   }
 
-  // 3. Xử lý UI nút nhạc
-  // Mặc định hiển thị là Đang Phát (để khớp với logic autoplay)
-  updateMusicUI(shouldPlay);
-
-  // 4. Tự động phát
+  // Handle Playback
   if (shouldPlay) {
-    bgMusic.play().catch((error) => {
-      console.log("Autoplay bị chặn, chờ tương tác...");
-      // Nếu browser chặn autoplay, chờ click đầu tiên để phát
-      const resumeAudio = () => {
-        bgMusic.play();
-        updateMusicUI(true);
-        // Save state as true
-        sessionStorage.setItem("music_playing", "true");
-        
-        document.removeEventListener("click", resumeAudio);
-        document.removeEventListener("touchstart", resumeAudio);
-      };
-      document.addEventListener("click", resumeAudio);
-      document.addEventListener("touchstart", resumeAudio);
-    });
+    const playPromise = audio.play();
+    if (playPromise !== undefined) {
+        playPromise.then(() => {
+            // Success
+            if (typeof updateMusicUI === 'function') updateMusicUI(true);
+        }).catch((error) => {
+            console.log("Autoplay blocked, waiting for interaction...");
+            const resume = () => {
+                audio.play();
+                sessionStorage.setItem("music_playing", "true");
+                if (typeof updateMusicUI === 'function') updateMusicUI(true);
+                document.removeEventListener("click", resume);
+                document.removeEventListener("touchstart", resume);
+            };
+            document.addEventListener("click", resume);
+            document.addEventListener("touchstart", resume);
+        });
+    }
   }
 
-  // 5. Lưu thời gian khi rời trang (unload)
-  // 5. Lưu thời gian khi rời trang (unload)
+  // Update UI if button exists
+  if (typeof updateMusicUI === 'function') updateMusicUI(!audio.paused);
+
+  // Save loop
   const saveState = () => {
-    if(bgMusic) {
-        sessionStorage.setItem("music_time", bgMusic.currentTime);
-        sessionStorage.setItem("music_playing", !bgMusic.paused);
-    }
+    sessionStorage.setItem("music_time", audio.currentTime);
+    sessionStorage.setItem("music_playing", !audio.paused);
   };
   window.addEventListener("beforeunload", saveState);
   window.addEventListener("pagehide", saveState);
 }
 
+// Global Toggle Function
 function toggleMusic() {
-  if (bgMusic.paused) {
-    bgMusic.play();
+  if (audio.paused) {
+    audio.play();
     sessionStorage.setItem("music_playing", "true");
-    updateMusicUI(true);
+    if (typeof updateMusicUI === 'function') updateMusicUI(true);
   } else {
-    bgMusic.pause();
+    audio.pause();
     sessionStorage.setItem("music_playing", "false");
-    updateMusicUI(false);
+    if (typeof updateMusicUI === 'function') updateMusicUI(false);
   }
 }
 
+// UI Updater (Global)
 function updateMusicUI(isPlaying) {
   const btn = document.getElementById("music-btn");
-  if (!btn) return;
-  btn.innerText = playing ? "⏸ Nhạc" : "▶ Nhạc";
+  if (btn) {
+      // Preserve the icon style
+      btn.innerHTML = isPlaying ? `⏸ <span class="hidden md:inline">Nhạc</span>` : `▶ <span class="hidden md:inline">Nhạc</span>`;
+  }
 }
+
+// Run Immediately! (Don't wait for DOMContentLoaded)
+initMusic();
+
+// Ensure UI Sync when DOM is ready (since initMusic runs early and button might not exist)
+document.addEventListener('DOMContentLoaded', () => {
+    if (typeof updateMusicUI === 'function' && window.bgMusic) {
+        updateMusicUI(!window.bgMusic.paused);
+    }
+});
