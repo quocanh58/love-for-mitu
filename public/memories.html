@@ -254,10 +254,13 @@
             div.className = "glass p-6 memory hover:scale-[1.02] transition";
             div.style.animationDelay = `${i * 0.1}s`;
 
+            // Format Date: YYYY-MM-DD -> DD-MM-YYYY
+            const dateDisplay = m.date.split('-').reverse().join('-');
+
             div.innerHTML = `
               <div class="flex items-center justify-between mb-2">
                 <span class="text-sm bg-pink-100 text-pink-600 px-3 py-1 rounded-full">
-                  ${m.date}
+                  ${dateDisplay}
                 </span>
                 
               </div>

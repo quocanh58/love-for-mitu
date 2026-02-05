@@ -53,8 +53,8 @@
                         <input type="file" name="image" required class="w-full border p-2 rounded-lg bg-white">
                     </div>
                     <div>
-                        <label class="block font-medium mb-1">Date (DD/MM/YYYY)</label>
-                        <input type="text" name="date" placeholder="e.g. 25/12/2025" required class="w-full border p-2 rounded-lg">
+                        <label class="block font-medium mb-1">Date (DD-MM-YYYY)</label>
+                        <input type="text" name="date" placeholder="e.g. 25-12-2025" required class="w-full border p-2 rounded-lg">
                     </div>
                     <button type="submit" class="w-full bg-blue-500 text-white px-6 py-2 rounded-lg font-bold hover:bg-blue-600">Upload to Gallery</button>
                 </form>
@@ -219,7 +219,7 @@
                     const container = document.createElement('div');
                     container.appendChild(imageEl);
                     container.insertAdjacentHTML('beforeend', `
-                        <div class="mt-2 text-center text-xs font-bold text-pink-500">${img.date}</div>
+                        <div class="mt-2 text-center text-xs font-bold text-pink-500">${img.date.replace(/\//g, '-')}</div>
                         <div class="absolute inset-0 bg-black/60 hidden group-hover:flex flex-col items-center justify-center gap-2 rounded transition">
                             <button onclick="openEditGallery('${img.src}', '${img.date}')" class="bg-blue-500 text-white text-xs px-3 py-1 rounded hover:bg-blue-600 w-20">Edit Date</button>
                             <button onclick="deleteGallery('${img.src}')" class="bg-red-500 text-white text-xs px-3 py-1 rounded hover:bg-red-600 w-20">Delete</button>
@@ -263,9 +263,13 @@
                 memories.forEach(m => {
                     const div = document.createElement('div');
                     div.className = "bg-white p-4 rounded-lg shadow flex justify-between items-start";
+                    
+                    // Format Date: YYYY-MM-DD -> DD-MM-YYYY
+                    const dateDisplay = m.date.split('-').reverse().join('-');
+
                     div.innerHTML = `
                         <div>
-                            <span class="inline-block bg-pink-100 text-pink-600 text-xs px-2 py-1 rounded-full mb-1">${m.date}</span>
+                            <span class="inline-block bg-pink-100 text-pink-600 text-xs px-2 py-1 rounded-full mb-1">${dateDisplay}</span>
                             <p class="text-gray-700 text-sm whitespace-pre-line">${m.text}</p>
                         </div>
                         <div class="flex gap-2 ml-4 shrink-0">
