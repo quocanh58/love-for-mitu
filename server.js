@@ -17,11 +17,12 @@ app.use(cors());
 app.use(bodyParser.json());
 // Cache assets (Music) for 7 days to eliminate network delay
 // app.use(express.static('public', { maxAge: '7d' }));
-app.use(express.static('public', {
-  etag: false,
-  lastModified: false,
-  maxAge: 0
-}));
+
+// app.use(express.static('public', {
+//   etag: false,
+//   lastModified: false,
+//   maxAge: 0
+// }));
 
 app.use(express.json({ limit: '50mb' })); // Allow large images
 // Data Paths
