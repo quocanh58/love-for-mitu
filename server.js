@@ -13,8 +13,9 @@ const PASSWORD = "21122025"; // Password for Index
 // Middleware
 app.use(cors());
 app.use(bodyParser.json());
-app.use(express.static('public'));
-
+// Cache assets (Music) for 7 days to eliminate network delay
+app.use(express.static('public', { maxAge: '7d' }));
+app.use(express.json({ limit: '50mb' })); // Allow large images
 // Data Paths
 const DATA_DIR = path.join(__dirname, 'data');
 const MEMORIES_FILE = path.join(DATA_DIR, 'memories.json');
