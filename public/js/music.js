@@ -73,21 +73,18 @@ function toggleMusic() {
   }
 }
 
-// UI Updater (Global)
 function updateMusicUI(isPlaying) {
   const btn = document.getElementById("music-btn");
   if (btn) {
-      // Preserve the icon style
       btn.innerHTML = isPlaying ? `⏸ <span class="hidden md:inline">Nhạc</span>` : `▶ <span class="hidden md:inline">Nhạc</span>`;
   }
 }
 
-// Run Immediately! (Don't wait for DOMContentLoaded)
 initMusic();
 
-// Ensure UI Sync when DOM is ready (since initMusic runs early and button might not exist)
 document.addEventListener('DOMContentLoaded', () => {
     if (typeof updateMusicUI === 'function' && window.bgMusic) {
         updateMusicUI(!window.bgMusic.paused);
     }
+
 });
