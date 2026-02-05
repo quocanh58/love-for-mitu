@@ -1,8 +1,11 @@
 // ===== OPTIMIZED SEAMLESS MUSIC (ZERO DELAY) =====
 
+// ===== OPTIMIZED SEAMLESS MUSIC (ZERO DELAY) =====
+
 // 1. Create Audio Object IMMEDIATELY (Before DOM)
 if (!window.bgMusic) {
     window.bgMusic = new Audio("asset/music/noi-nay-co-anh.mp3");
+    window.bgMusic.id = "bg-music"; // Needs ID for legacy selectors
     window.bgMusic.loop = true;
     window.bgMusic.volume = 0.6;
     window.bgMusic.preload = "auto";
@@ -84,6 +87,11 @@ document.addEventListener('readystatechange', () => {
     }
 });
 document.addEventListener('DOMContentLoaded', () => {
+    // Append to DOM so getElementById works in other scripts (Crucial for Play on Login)
+    if (window.bgMusic && !document.getElementById('bg-music')) {
+        document.body.appendChild(window.bgMusic);
+    }
+    
     if (window.updateMusicUI) window.updateMusicUI(!audio.paused);
 });
 

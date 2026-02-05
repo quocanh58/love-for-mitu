@@ -179,7 +179,7 @@
           document.getElementById("logout-btn").classList.remove("hidden");
           
           // User Clicked Login -> Guaranteed Play (Bypasses Autoplay Block)
-          const audio = document.getElementById('bg-music');
+          const audio = document.getElementById('bg-music') || window.bgMusic;
           if (audio) {
               audio.play().then(() => {
                   sessionStorage.setItem("music_playing", "true");
