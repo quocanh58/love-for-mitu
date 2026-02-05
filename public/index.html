@@ -177,8 +177,11 @@
           document.getElementById("main-content").classList.remove("hidden");
           document.getElementById("logout-btn").classList.remove("hidden");
           
-          localStorage.setItem("music_playing", "true");
-          toggleMusic();
+          // Ensure music plays if it was paused (e.g. by policy), but don't stop it if playing
+          const audio = document.getElementById('bg-music');
+          if (audio && audio.paused) {
+              toggleMusic(); 
+          }
         } else {
           error.classList.remove("hidden");
         }
@@ -190,6 +193,17 @@
              document.getElementById("password-modal").classList.add("hidden");
              document.getElementById("main-content").classList.remove("hidden");
              document.getElementById("logout-btn").classList.remove("hidden");
+             
+             // Force check music playback for returning users
+             setTimeout(() => {
+                 const audio = document.getElementById("bg-music");
+                 // If audio exists, is paused, and session says it SHOULD play (default true)
+                 if(audio && audio.paused && sessionStorage.getItem("music_playing") !== "false") {
+                     console.log("Forcing resume on Index");
+                     audio.play().catch(e => console.log("Still blocked:", e));
+                     if(typeof updateMusicUI === 'function') updateMusicUI(true);
+                 }
+             }, 800);
         }
 
         const input = document.getElementById("password-input");
